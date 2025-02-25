@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tallérföld - Survival Clicker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="header">
+            <h1>Tallérföld</h1>
+            <p>Szint: <span id="player-level">1</span> | XP: <span id="player-xp">0</span>/100 | Tallér: <span id="player-money">0</span></p>
+        </div>
+
+        <div id="resource-container">
+            <h2>Erőforrások</h2>
+            <div class="resource" id="wood">Fa: <span>0</span> <button onclick="gatherResource('wood')">Gyűjtés</button></div>
+            <div class="resource" id="stone">Kő: <span>0</span> <button onclick="gatherResource('stone')">Gyűjtés</button></div>
+            <div class="resource" id="food">Étel: <span>0</span> <button onclick="gatherResource('food')">Gyűjtés</button></div>
+            <div class="resource" id="iron">Vas: <span>0</span> <button onclick="gatherResource('iron')">Gyűjtés</button></div>
+            <div class="resource" id="water">Víz: <span>0</span> <button onclick="gatherResource('water')">Gyűjtés</button></div>
+        </div>
+
+        <div id="shop-container">
+            <h2>Felszerelések</h2>
+            <div class="item" id="axe">Fejsze - Ár: 10 Tallér <button onclick="buyItem('axe', 10)">Vásárlás</button></div>
+            <div class="item" id="pickaxe">Csákány - Ár: 15 Tallér <button onclick="buyItem('pickaxe', 15)">Vásárlás</button></div>
+            <div class="item" id="fishing-rod">Horgászbot - Ár: 12 Tallér <button onclick="buyItem('fishing-rod', 12)">Vásárlás</button></div>
+        </div>
+
+        <div id="quest-container">
+            <h2>Küldetések</h2>
+            <p id="quest-text">Nincs aktív küldetés.</p>
+            <button onclick="acceptQuest()">Új küldetés</button>
+            <button onclick="completeQuest()">Teljesítés</button>
+        </div>
+
+        <div id="wanderer-container">
+            <h2>Vándor NPC</h2>
+            <p id="wanderer-text">Nincs itt senki.</p>
+            <button onclick="spawnWanderer()">Vándor érkezése</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

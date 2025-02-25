@@ -1,0 +1,44 @@
+body {
+    background-color: #2a2a2a;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+#game-container {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    background: #444;
+    border-radius: 10px;
+}
+
+button {
+    background-color: #ff9800;
+    color: black;
+    padding: 5px 10px;
+    margin: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #ffa726;
+}
+
+#resource-container, #shop-container, #quest-container, #wanderer-container {
+    margin-top: 20px;
+    padding: 10px;
+    background: #555;
+    border-radius: 5px;
+}
+
+.resource, .item {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+}
+
+h2 {
+    color: #ffcc00;
+}
