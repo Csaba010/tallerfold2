@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Túlélő Játék</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1a202c;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+    .button {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      margin: 5px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .button:disabled {
+      background-color: #888;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 25px;
+      background-color: #ddd;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+    .progress-bar > div {
+      height: 100%;
+      background-color: #4caf50;
+      border-radius: 5px;
+    }
+    .resource-card {
+      display: inline-block;
+      background-color: #333;
+      padding: 10px;
+      margin: 5px;
+      border-radius: 5px;
+      width: 120px;
+    }
+    .card-content {
+      margin: 5px 0;
+    }
+    .card-content p {
+      font-size: 18px;
+    }
+    .store-modal {
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 20px;
+      border-radius: 10px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80%;
+      z-index: 1000;
+      display: none;
+    }
+    #tutorial {
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 20px;
+      border-radius: 10px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80%;
+      z-index: 1000;
+    }
+    #tutorial p {
+      font-size: 18px;
+      margin: 10px 0;
+    }
+    #tutorial .button {
+      background-color: #ff9800;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Tutorial -->
+  <div id="tutorial">
+    <h1>Túlélő Játék - Útmutató</h1>
+    <p>Üdvözlünk a Túlélő Játékban! Itt a célod, hogy túlélj és fejlődj, miközben erőforrásokat gyűjtesz és fejlesztéseket vásárolsz.</p>
+    <p><strong>Erőforrások:</strong> A játékban többféle erőforrást gyűjthetsz, például fát, követ, ételt, vizet és fémet. Ezeket különböző eszközökkel gyűjtheted, amelyek a fejlődésed során elérhetők.</p>
+    <p><strong>Eszközök és gépek:</strong> Az eszközöket fejlesztheted, és gépeket is vásárolhatsz, amelyek automatikusan gyűjtik az erőforrást.</p>
+    <p><strong>Fejlesztések:</strong> Különböző fejlesztésekkel javíthatod a védelmed, a gyűjtési kapacitásod és más aspektusokat. Az egyes fejlesztésekhez szükséges erőforrásokat gyűjtheted és felhasználhatod.</p>
+    <p><strong>Ellenséges fenyegetettség:</strong> Az ellenséges fenyegetettség csak a 10-es szint után indul el. Addig fel tudsz készülni és fejlesztheted a védelmedet!</p>
+    <p><strong>XP (Tapasztalatpontok) és szint:</strong> Minden egyes erőforrás gyűjtésével tapasztalatpontokat gyűjtesz. Ha elérsz egy bizonyos szintet, elkezdhetnek megjelenni az ellenségek!</p>
+    <button class="button" id="startGame">Játék kezdése</button>
+  </div>
+
+  <!-- Bolt modal -->
+  <div class="store-modal" id="storeModal">
+    <h2>Bolt</h2>
+    <p>Vásárolj eszközöket az erőforrások gyűjtésére!</p>
+    <p>Fakorong vásárlása (Fa) - Ár: 20 Fa</p>
+    <button class="button" onclick="buyTool('fa')">Fakorong vásárlása</button>
+    <p>Kőbányász vásárlása (Kő) - Ár: 15 Kő</p>
+    <button class="button" onclick="buyTool('ko')">Kőbányász vásárlása</button>
+    <p>Fémrepesztő vásárlása (Fém) - Ár: 30 Fém</p>
+    <button class="button" onclick="buyTool('fem')">Fémrepesztő vásárlása</button>
+    <button class="button" onclick="closeStore()">Bezárás</button>
+  </div>
+
+  <!-- Játék felülete -->
+  <div id="gameArea" style="display: none;">
+    <h2>Erőforrások</h2>
+    <div id="resources"></div>
+    <h2>Játékos Szint és XP</h2>
+    <p id="levelInfo">Szint: 1 | XP: 0 / 100</p>
+    <div>
+      <button class="button" id="storeButton">Bolt nyitása</button>
+    </div>
+
+    <h2>Fejlesztések</h2>
+    <div id="upgrades"></div>
+
+    <h2>Ellenséges Fenyegetettség</h2>
+    <div id="enemyThreatBar" class="progress-bar">
+      <div style="width: 0%;"></div>
+    </div>
+    <h2>Játékos Életerő</h2>
+    <div id="playerHealthBar" class="progress-bar">
+      <div style="width: 100%;"></div>
+    </div>
+  </div>
+
+  <script>
+    // Kezdeti erőforrások és beállítások
+    const initialResources = {
+      fa: 0,
+      ko: 0,
+      etel: 0,
+      fem: 0,
+      viz: 0,
+      arany: 0,
+    };
+
+    const initialUpgrades = {
+      eszkozok: 1,
+      vedelem: 1,
+      tarolas: 1,
+      kovetes: 1,
+    };
+
+    let experience = 0;
+    let level = 1;
+    const xpForLevelUp = 100;
+
+    let resources = { ...initialResources };
+    let upgrades = { ...initialUpgrades };
+    let enemyThreat = 0;
+    let playerHealth = 100;
+    let autoGather = false;
+    let isInStore = false;
+
+    const resourcesDiv = document.getElementById("resources");
+    const upgradesDiv = document.getElementById("upgrades");
+    const storeButton = document.getElementById("storeButton");
+    const storeModal = document.getElementById("storeModal");
+    const gameArea = document.getElementById("gameArea");
+    const tutorialDiv = document.getElementById("tutorial");
+    const levelInfo = document.getElementById("levelInfo");
+
+    // Játék elindítása
+    document.getElementById("startGame").onclick = function() {
+      tutorialDiv.style.display = "none";
+      gameArea.style.display = "block";
+      updateResources();
+      updateUpgrades();
+      updateThreat();
+    };
+
+    // Bolt megnyitása
+    storeButton.onclick = function() {
+      storeModal.style.display = "block";
+      gameArea.style.display = "none";
+    };
+
+    // Bolt bezárása
+    function closeStore() {
+      storeModal.style.display = "none";
+      gameArea.style.display = "block";
+    }
+
+    // Erőforrások frissítése
+    function updateResources() {
+      resourcesDiv.innerHTML = "";
+      for (const [key, value] of Object.entries(resources)) {
+        const card = document.createElement("div");
+        card.classList.add("resource-card");
+        const cardContent = document.createElement("div");
+        cardContent.classList.add("card-content");
+        cardContent.innerHTML = `<p>${key.toUpperCase()}: ${value}</p>`;
+        card.appendChild(cardContent);
+        resourcesDiv.appendChild(card);
+      }
+      updateLevelInfo();
+    }
+
+    // Szint és XP frissítése
+    function updateLevelInfo() {
+      levelInfo.textContent = `Szint: ${level} | XP: ${experience} / ${xpForLevelUp}`;
+    }
+
+    // Eszköz vásárlása
+    function buyTool(type) {
+      const cost = { fa: 20, ko: 10, fem: 15 }; // Példa eszköz költség
+      if (resources[type] >= cost[type]) {
+        resources[type] -= cost[type];
+        upgrades[type] = upgrades[type] || 0;
+        upgrades[type] += 1;
+        updateResources();
+        closeStore();
+      }
+    }
+
+    // Fenyegetettség növelése
+    function updateThreat() {
+      setInterval(() => {
+        if (level >= 10) {
+          enemyThreat += 5;
+          if (enemyThreat > 100) {
+            enemyThreat = 100;
+            playerHealth -= 5;
+          }
+          document.getElementById("enemyThreatBar").style.width = `${enemyThreat}%`;
+          document.getElementById("playerHealthBar").style.width = `${playerHealth}%`;
+          if (playerHealth <= 0) {
+            alert("A játék véget ért! Az életerőd elfogyott.");
+            playerHealth = 0;
+          }
+        }
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
